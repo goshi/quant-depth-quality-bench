@@ -1,0 +1,33 @@
+# quant-depth-bench configuration.
+# Measures model quality (code exec, exact answers, needle retrieval) at growing
+# context depths, to compare quantization variants of the same model.
+# Python >= 3.11 (stdlib tomllib). No third-party dependencies.
+
+[server]
+base_url = "http://127.0.0.1:8002"  # OpenAI-compatible chat completions endpoint
+model = ""                          # explicit model id; required by some servers (e.g. vLLM), ignored if empty
+request_timeout = 1800              # seconds per request
+
+[run]
+depths_k = [8, 64, 192, 384, 480]   # target prompt-token depths (in thousands)
+seeds = [1000, 1001]                # sampling seeds; prompts are fully seeded, so (seed, task) is reproducible
+languages = ["ru", "ua"]            # prompt languages: "ru", "ua"
+workers = 2                         # concurrent in-flight requests. Semantics: each worker BLOCKS on the
+                                    # model's reply before taking the next job, so never more than
+                                    # `workers` requests are in flight. Keep within the server's KV-cache
+                                    # capacity (e.g. a single-GPU vLLM with a large context may serve
+                                    # only 2 concurrent deep-context requests; 3 can overflow the cache)
+max_tokens = 1024                   # completion budget (cut rows: finish=length)
+temperature = 0.7
+thinking = false                    # false => send chat_template_kwargs {"enable_thinking": false}
+out_dir = "results"                 # jsonl output directory (one file per label+depth)
+
+[reduced_set]                       # smaller job set for very deep (slow) contexts
+enabled = true
+depths_k = [480]
+code_tasks = 3                      # of 6
+fact_tasks = 1                      # of 4
+needle_tasks = 1                    # of 2
+
+[retry]
+max_tokens = 4096                   # budget used by retry_cuts.py when re-asking cut rows
