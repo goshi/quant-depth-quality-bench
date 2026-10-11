@@ -119,7 +119,7 @@ scored metric (models often reason in English before answering in RU/UA).
 ## Hardware used for the reference run
 
 - TensorFold (EXL3 4bpw) on 2× NVIDIA DGX Spark (TP2), DENSE=fp8 vs DENSE=q4
-- stock vLLM serving GLM-5.3-Flash-nvfp4 on a single DGX Spark
+- stock vLLM serving the official [nvidia/GLM-5.3-Flash-NVFP4](https://huggingface.co/nvidia/GLM-5.3-Flash-NVFP4) checkpoint on 2× DGX Spark (TP2, two nodes; head node holds the served model)
 
 ## License
 
